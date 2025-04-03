@@ -17,14 +17,14 @@ const AlgebraProblem: React.FC<AlgebraProblemProps> = ({ problem }) => {
         <div className="flex items-center justify-center text-3xl font-bold">
           <span>{problem.firstNumber}</span>
           <span className="mx-2">{problem.operation}</span>
-          <div className="w-12 h-12 bg-secondary bg-opacity-20 rounded-lg flex items-center justify-center text-secondary border-2 border-dashed border-secondary">
+          <div className="w-12 h-12 bg-secondary bg-opacity-20 rounded-lg flex items-center justify-center text-black font-bold border-2 border-dashed border-secondary">
             x
           </div>
           <span className="mx-2">=</span>
           <span>{problem.result}</span>
         </div>
-        <div className="text-lg mt-2 text-gray-600">
-          ({problem.firstNumber} {problem.operation} x = {problem.result})
+        <div className="text-lg mt-2 text-gray-700 font-medium">
+          ({problem.firstNumber} {problem.operation} <span className="text-black font-bold">x</span> = {problem.result})
         </div>
       </div>
       
