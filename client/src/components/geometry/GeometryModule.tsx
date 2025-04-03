@@ -10,8 +10,12 @@ const GeometryModule: React.FC = () => {
   const [shapeSize, setShapeSize] = useState(100);
   const [sideLength, setSideLength] = useState(10);
   const [angle, setAngle] = useState(60);
+  const [shapeColor, setShapeColor] = useState('#3b82f6'); // Default blue color
+  const [numSides, setNumSides] = useState(4); // Default 4 sides for square, can go up to 10
+  const [width, setWidth] = useState(10); // For rectangle width
+  const [height, setHeight] = useState(10); // For rectangle height
   
-  const properties = calculateGeometryProperties(selectedShape, sideLength, angle);
+  const properties = calculateGeometryProperties(selectedShape, sideLength, angle, numSides, width, height);
   
   return (
     <div className="flex flex-col lg:flex-row gap-6">
@@ -26,6 +30,14 @@ const GeometryModule: React.FC = () => {
           setSideLength={setSideLength}
           angle={angle}
           setAngle={setAngle}
+          shapeColor={shapeColor}
+          setShapeColor={setShapeColor}
+          numSides={numSides}
+          setNumSides={setNumSides}
+          width={width}
+          setWidth={setWidth}
+          height={height}
+          setHeight={setHeight}
           properties={properties}
         />
       </div>

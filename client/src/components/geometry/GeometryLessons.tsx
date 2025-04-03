@@ -12,6 +12,188 @@ const GeometryLessons: React.FC<GeometryLessonsProps> = ({ selectedShape }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswerChecked, setIsAnswerChecked] = useState(false);
   
+  // Create multiple geometry questions for each shape
+  const triangleQuestions = [
+    {
+      question: 'What is the name of a triangle where all sides are equal?',
+      answers: [
+        'Scalene Triangle',
+        'Isosceles Triangle',
+        'Equilateral Triangle',
+        'Right Triangle'
+      ],
+      correctAnswer: 'Equilateral Triangle'
+    },
+    {
+      question: 'How many vertices does a triangle have?',
+      answers: [
+        '2',
+        '3',
+        '4',
+        '5'
+      ],
+      correctAnswer: '3'
+    },
+    {
+      question: 'What is the sum of all angles in a triangle?',
+      answers: [
+        '90 degrees',
+        '180 degrees',
+        '270 degrees',
+        '360 degrees'
+      ],
+      correctAnswer: '180 degrees'
+    },
+    {
+      question: 'Which of these is not a type of triangle?',
+      answers: [
+        'Equilateral',
+        'Isosceles',
+        'Scalene',
+        'Hexagonal'
+      ],
+      correctAnswer: 'Hexagonal'
+    },
+    {
+      question: 'A triangle with one angle that is 90 degrees is called a...',
+      answers: [
+        'Right triangle',
+        'Acute triangle',
+        'Obtuse triangle',
+        'Straight triangle'
+      ],
+      correctAnswer: 'Right triangle'
+    }
+  ];
+
+  const squareQuestions = [
+    {
+      question: 'What is special about the angles in a square?',
+      answers: [
+        'They are all 60 degrees',
+        'They are all 90 degrees',
+        'They are all 45 degrees',
+        'They add up to 180 degrees'
+      ],
+      correctAnswer: 'They are all 90 degrees'
+    },
+    {
+      question: 'How many sides does a square have?',
+      answers: [
+        '3',
+        '4',
+        '5',
+        '6'
+      ],
+      correctAnswer: '4'
+    },
+    {
+      question: 'What shape is a square with unequal sides?',
+      answers: [
+        'Triangle',
+        'Rectangle',
+        'Circle',
+        'Pentagon'
+      ],
+      correctAnswer: 'Rectangle'
+    },
+    {
+      question: 'How do you find the area of a square?',
+      answers: [
+        'side + side',
+        'side × 4',
+        'side × side',
+        'side ÷ 2'
+      ],
+      correctAnswer: 'side × side'
+    },
+    {
+      question: 'What is a square with 5 sides called?',
+      answers: [
+        'Pentagon',
+        'Hexagon',
+        'Octagon',
+        'Decagon'
+      ],
+      correctAnswer: 'Pentagon'
+    }
+  ];
+
+  const circleQuestions = [
+    {
+      question: 'What is the name for the distance around a circle?',
+      answers: [
+        'Radius',
+        'Diameter',
+        'Circumference',
+        'Perimeter'
+      ],
+      correctAnswer: 'Circumference'
+    },
+    {
+      question: 'The distance from the center to any point on a circle is called the...',
+      answers: [
+        'Diameter',
+        'Radius',
+        'Circumference',
+        'Arc'
+      ],
+      correctAnswer: 'Radius'
+    },
+    {
+      question: 'What is the value of π (pi) rounded to the nearest whole number?',
+      answers: [
+        '2',
+        '3',
+        '4',
+        '5'
+      ],
+      correctAnswer: '3'
+    },
+    {
+      question: 'What is the distance across a circle through its center called?',
+      answers: [
+        'Radius',
+        'Diameter',
+        'Circumference',
+        'Chord'
+      ],
+      correctAnswer: 'Diameter'
+    },
+    {
+      question: 'How many corners does a circle have?',
+      answers: [
+        '0',
+        '1',
+        '2',
+        'Infinite'
+      ],
+      correctAnswer: '0'
+    }
+  ];
+
+  // Get a random question for the current shape
+  const getRandomQuestion = (shape: Shape) => {
+    const questionBank = 
+      shape === 'triangle' ? triangleQuestions :
+      shape === 'square' ? squareQuestions :
+      circleQuestions;
+    
+    // Get a random index between 0 and the length of the question bank
+    const randomIndex = Math.floor(Math.random() * questionBank.length);
+    return questionBank[randomIndex];
+  };
+
+  // Generate a random question when resetting
+  const [currentQuestion, setCurrentQuestion] = useState(getRandomQuestion(selectedShape));
+
+  // Update current question when shape changes
+  React.useEffect(() => {
+    setCurrentQuestion(getRandomQuestion(selectedShape));
+    setSelectedAnswer(null);
+    setIsAnswerChecked(false);
+  }, [selectedShape]);
+
   const getShapeInfo = () => {
     switch(selectedShape) {
       case 'triangle':
@@ -23,14 +205,9 @@ const GeometryLessons: React.FC<GeometryLessonsProps> = ({ selectedShape }) => {
             { name: 'Isosceles', desc: 'Two sides and two angles are equal' },
             { name: 'Scalene', desc: 'All sides and angles are different' }
           ],
-          question: 'What is the name of a triangle where all sides are equal?',
-          answers: [
-            'Scalene Triangle',
-            'Isosceles Triangle',
-            'Equilateral Triangle',
-            'Right Triangle'
-          ],
-          correctAnswer: 'Equilateral Triangle'
+          question: currentQuestion.question,
+          answers: currentQuestion.answers,
+          correctAnswer: currentQuestion.correctAnswer
         };
       case 'square':
         return {
@@ -41,14 +218,9 @@ const GeometryLessons: React.FC<GeometryLessonsProps> = ({ selectedShape }) => {
             { name: 'Rectangle', desc: 'Opposite sides equal, all angles 90°' },
             { name: 'Rhombus', desc: 'All sides equal, opposite angles equal' }
           ],
-          question: 'What is special about the angles in a square?',
-          answers: [
-            'They are all 60 degrees',
-            'They are all 90 degrees',
-            'They are all 45 degrees',
-            'They add up to 180 degrees'
-          ],
-          correctAnswer: 'They are all 90 degrees'
+          question: currentQuestion.question,
+          answers: currentQuestion.answers,
+          correctAnswer: currentQuestion.correctAnswer
         };
       case 'circle':
         return {
@@ -59,14 +231,9 @@ const GeometryLessons: React.FC<GeometryLessonsProps> = ({ selectedShape }) => {
             { name: 'Diameter', desc: 'The distance across the circle through the center' },
             { name: 'Circumference', desc: 'The distance around the circle' }
           ],
-          question: 'What is the name for the distance around a circle?',
-          answers: [
-            'Radius',
-            'Diameter',
-            'Circumference',
-            'Perimeter'
-          ],
-          correctAnswer: 'Circumference'
+          question: currentQuestion.question,
+          answers: currentQuestion.answers,
+          correctAnswer: currentQuestion.correctAnswer
         };
       default:
         return {
@@ -93,6 +260,8 @@ const GeometryLessons: React.FC<GeometryLessonsProps> = ({ selectedShape }) => {
   };
   
   const resetQuiz = () => {
+    // Get a new random question
+    setCurrentQuestion(getRandomQuestion(selectedShape));
     setSelectedAnswer(null);
     setIsAnswerChecked(false);
   };

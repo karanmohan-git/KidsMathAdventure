@@ -8,13 +8,22 @@ export interface GeometryProperties {
 export function calculateGeometryProperties(
   shape: 'triangle' | 'square' | 'circle',
   sideLength: number,
-  angle: number = 60
+  angle: number = 60,
+  numSides: number = 4,
+  width: number = 10,
+  height: number = 10
 ): GeometryProperties {
   switch (shape) {
     case 'triangle':
       return calculateTriangleProperties(sideLength, angle);
     case 'square':
-      return calculateSquareProperties(sideLength);
+      if (numSides > 4) {
+        return calculatePolygonProperties(sideLength, numSides);
+      } else if (width !== height) {
+        return calculateRectangleProperties(width, height);
+      } else {
+        return calculateSquareProperties(sideLength);
+      }
     case 'circle':
       return calculateCircleProperties(sideLength); // sideLength acts as radius for circle
     default:
@@ -47,6 +56,37 @@ function calculateSquareProperties(sideLength: number): GeometryProperties {
   const perimeter = sideLength * 4;
   const area = sideLength * sideLength;
   const angleSum = 360; // Sum of angles in a square is always 360 degrees (4 * 90)
+  
+  return {
+    perimeter,
+    area,
+    angleSum
+  };
+}
+
+// Calculate rectangle properties
+function calculateRectangleProperties(width: number, height: number): GeometryProperties {
+  const perimeter = 2 * (width + height);
+  const area = width * height;
+  const angleSum = 360; // Sum of angles in a rectangle is always 360 degrees (4 * 90)
+  
+  return {
+    perimeter,
+    area,
+    angleSum
+  };
+}
+
+// Calculate polygon properties
+function calculatePolygonProperties(sideLength: number, numSides: number): GeometryProperties {
+  const perimeter = sideLength * numSides;
+  
+  // Using the regular polygon area formula: area = (n * s²) / (4 * tan(π/n))
+  // where n is the number of sides and s is the side length
+  const area = Math.round((numSides * Math.pow(sideLength, 2)) / (4 * Math.tan(Math.PI / numSides)) * 10) / 10;
+  
+  // Sum of interior angles of a polygon = (n - 2) * 180 degrees
+  const angleSum = (numSides - 2) * 180; 
   
   return {
     perimeter,

@@ -15,6 +15,14 @@ interface ShapeExplorerProps {
   setSideLength: (length: number) => void;
   angle: number;
   setAngle: (angle: number) => void;
+  shapeColor: string;
+  setShapeColor: (color: string) => void;
+  numSides: number;
+  setNumSides: (sides: number) => void;
+  width: number;
+  setWidth: (width: number) => void;
+  height: number;
+  setHeight: (height: number) => void;
   properties: GeometryProperties;
 }
 
@@ -27,9 +35,36 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
   setSideLength,
   angle,
   setAngle,
+  shapeColor,
+  setShapeColor,
+  numSides,
+  setNumSides,
+  width,
+  setWidth,
+  height,
+  setHeight,
   properties
 }) => {
   const renderShape = () => {
+    // Helper function to generate a polygon SVG path
+    const generatePolygonPath = (sides: number, size: number) => {
+      const points = [];
+      const angleStep = (Math.PI * 2) / sides;
+      
+      for (let i = 0; i < sides; i++) {
+        const x = size + size * Math.cos(i * angleStep - Math.PI / 2);
+        const y = size + size * Math.sin(i * angleStep - Math.PI / 2);
+        points.push(`${x},${y}`);
+      }
+      
+      return points.join(' ');
+    };
+    
+    // Calculate whether we should show a rectangle (different width/height) or a square
+    const isRectangle = selectedShape === 'square' && width !== height;
+    // Calculate whether we should show a polygon with > 4 sides
+    const isPolygon = selectedShape === 'square' && numSides > 4;
+    
     switch (selectedShape) {
       case 'triangle':
         return (
@@ -40,19 +75,19 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
                 borderLeft: `${shapeSize}px solid transparent`,
                 borderRight: `${shapeSize}px solid transparent`,
                 borderBottom: `${shapeSize * 1.73}px solid`,
-                borderBottomColor: 'var(--primary)',
+                borderBottomColor: shapeColor,
               }}
             >
             </div>
             
             {/* Angle markers */}
-            <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 text-white font-bold">
+            <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
               {angle}°
             </div>
-            <div className="absolute bottom-16 left-8 text-white font-bold">
+            <div className="absolute bottom-16 left-8 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
               {angle}°
             </div>
-            <div className="absolute bottom-16 right-8 text-white font-bold">
+            <div className="absolute bottom-16 right-8 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
               {angle}°
             </div>
             
@@ -69,30 +104,84 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
           </div>
         );
       case 'square':
-        return (
-          <div className="relative">
-            <div 
-              style={{
-                width: `${shapeSize * 1.5}px`,
-                height: `${shapeSize * 1.5}px`,
-                backgroundColor: 'var(--primary)',
-              }}
-            >
+        if (isPolygon) {
+          return (
+            <div className="relative">
+              <svg 
+                width={shapeSize * 3} 
+                height={shapeSize * 3}
+                viewBox={`0 0 ${shapeSize * 2} ${shapeSize * 2}`}
+              >
+                <polygon 
+                  points={generatePolygonPath(numSides, shapeSize)}
+                  fill={shapeColor}
+                  stroke="black"
+                  strokeWidth="1"
+                />
+              </svg>
+              
+              {/* Display the number of sides */}
+              <div className="absolute top-2 left-2 bg-white bg-opacity-70 px-2 py-1 rounded text-black font-bold">
+                {numSides} sides
+              </div>
+              
+              {/* Side length marker */}
+              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-slate-800 font-bold">
+                Side length: {sideLength}
+              </div>
             </div>
-            
-            {/* Angle markers - all 90° for square */}
-            <div className="absolute top-1 left-1 text-white font-bold">90°</div>
-            <div className="absolute top-1 right-1 text-white font-bold">90°</div>
-            <div className="absolute bottom-1 left-1 text-white font-bold">90°</div>
-            <div className="absolute bottom-1 right-1 text-white font-bold">90°</div>
-            
-            {/* Side length markers */}
-            <div className="absolute top-1/2 left-0 -translate-x-4 -translate-y-1/2 text-slate-800 font-bold">{sideLength}</div>
-            <div className="absolute top-1/2 right-0 translate-x-4 -translate-y-1/2 text-slate-800 font-bold">{sideLength}</div>
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4 text-slate-800 font-bold">{sideLength}</div>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-4 text-slate-800 font-bold">{sideLength}</div>
-          </div>
-        );
+          );
+        } else if (isRectangle) {
+          return (
+            <div className="relative">
+              <div 
+                style={{
+                  width: `${width * 10}px`,
+                  height: `${height * 10}px`,
+                  backgroundColor: shapeColor,
+                }}
+              >
+              </div>
+              
+              {/* Angle markers - all 90° for rectangle */}
+              <div className="absolute top-1 left-1 text-black bg-white bg-opacity-70 px-1 rounded font-bold">90°</div>
+              <div className="absolute top-1 right-1 text-black bg-white bg-opacity-70 px-1 rounded font-bold">90°</div>
+              <div className="absolute bottom-1 left-1 text-black bg-white bg-opacity-70 px-1 rounded font-bold">90°</div>
+              <div className="absolute bottom-1 right-1 text-black bg-white bg-opacity-70 px-1 rounded font-bold">90°</div>
+              
+              {/* Side length markers */}
+              <div className="absolute top-1/2 left-0 -translate-x-4 -translate-y-1/2 text-slate-800 font-bold">{height}</div>
+              <div className="absolute top-1/2 right-0 translate-x-4 -translate-y-1/2 text-slate-800 font-bold">{height}</div>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4 text-slate-800 font-bold">{width}</div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-4 text-slate-800 font-bold">{width}</div>
+            </div>
+          );
+        } else {
+          return (
+            <div className="relative">
+              <div 
+                style={{
+                  width: `${shapeSize * 1.5}px`,
+                  height: `${shapeSize * 1.5}px`,
+                  backgroundColor: shapeColor,
+                }}
+              >
+              </div>
+              
+              {/* Angle markers - all 90° for square */}
+              <div className="absolute top-1 left-1 text-black bg-white bg-opacity-70 px-1 rounded font-bold">90°</div>
+              <div className="absolute top-1 right-1 text-black bg-white bg-opacity-70 px-1 rounded font-bold">90°</div>
+              <div className="absolute bottom-1 left-1 text-black bg-white bg-opacity-70 px-1 rounded font-bold">90°</div>
+              <div className="absolute bottom-1 right-1 text-black bg-white bg-opacity-70 px-1 rounded font-bold">90°</div>
+              
+              {/* Side length markers */}
+              <div className="absolute top-1/2 left-0 -translate-x-4 -translate-y-1/2 text-slate-800 font-bold">{sideLength}</div>
+              <div className="absolute top-1/2 right-0 translate-x-4 -translate-y-1/2 text-slate-800 font-bold">{sideLength}</div>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4 text-slate-800 font-bold">{sideLength}</div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-4 text-slate-800 font-bold">{sideLength}</div>
+            </div>
+          );
+        }
       case 'circle':
         return (
           <div className="relative">
@@ -100,7 +189,7 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
               style={{
                 width: `${shapeSize * 2}px`,
                 height: `${shapeSize * 2}px`,
-                backgroundColor: 'var(--primary)',
+                backgroundColor: shapeColor,
                 borderRadius: '50%',
               }}
             >
@@ -108,7 +197,7 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
             
             {/* Radius marker */}
             <div className="absolute top-1/2 left-1/2 w-1/2 h-0.5 bg-white"></div>
-            <div className="absolute top-1/2 left-3/4 -translate-y-8 text-white font-bold">
+            <div className="absolute top-1/2 left-3/4 -translate-y-8 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
               Radius: {sideLength}
             </div>
           </div>
@@ -163,6 +252,27 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
               className="w-full h-3"
             />
           </div>
+
+          {/* Color picker */}
+          <div className="mb-4">
+            <label className="block mb-2 font-bold">Color:</label>
+            <div className="flex flex-wrap gap-2">
+              {['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#000000'].map((color) => (
+                <div 
+                  key={color}
+                  className={`w-8 h-8 rounded-full cursor-pointer ${shapeColor === color ? 'ring-2 ring-black ring-offset-2' : ''}`}
+                  style={{ backgroundColor: color }}
+                  onClick={() => setShapeColor(color)}
+                />
+              ))}
+              <input 
+                type="color" 
+                value={shapeColor}
+                onChange={(e) => setShapeColor(e.target.value)}
+                className="w-8 h-8 p-0 border-0 cursor-pointer"
+              />
+            </div>
+          </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -181,7 +291,7 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
                 <span className="ml-2">units</span>
               </div>
             </div>
-            {selectedShape !== 'circle' && (
+            {selectedShape === 'triangle' && (
               <div>
                 <label className="block mb-2 font-bold">Angle:</label>
                 <div className="flex items-center">
@@ -190,15 +300,64 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
                     value={angle}
                     onChange={(e) => setAngle(Number(e.target.value))}
                     className="w-full p-2 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
-                    min={selectedShape === 'square' ? 90 : 20}
-                    max={selectedShape === 'square' ? 90 : 120}
-                    disabled={selectedShape === 'square'}
+                    min={20}
+                    max={120}
                   />
                   <span className="ml-2">degrees</span>
                 </div>
               </div>
             )}
           </div>
+
+          {/* Show polygon sides slider for square */}
+          {selectedShape === 'square' && (
+            <div className="mt-4">
+              <label className="block mb-2 font-bold">Number of Sides:</label>
+              <Slider
+                value={[numSides]}
+                min={4}
+                max={10}
+                step={1}
+                onValueChange={(values) => setNumSides(values[0])}
+                className="w-full h-3"
+              />
+              <div className="text-center mt-1">{numSides} sides</div>
+            </div>
+          )}
+
+          {/* Show width/height controls for rectangle */}
+          {selectedShape === 'square' && numSides === 4 && (
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              <div>
+                <label className="block mb-2 font-bold">Width:</label>
+                <div className="flex items-center">
+                  <Input
+                    type="number"
+                    value={width}
+                    onChange={(e) => setWidth(Number(e.target.value))}
+                    className="w-full p-2 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
+                    min={1}
+                    max={20}
+                  />
+                  <span className="ml-2">units</span>
+                </div>
+              </div>
+              <div>
+                <label className="block mb-2 font-bold">Height:</label>
+                <div className="flex items-center">
+                  <Input
+                    type="number"
+                    value={height}
+                    onChange={(e) => setHeight(Number(e.target.value))}
+                    className="w-full p-2 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
+                    min={1}
+                    max={20}
+                  />
+                  <span className="ml-2">units</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       
