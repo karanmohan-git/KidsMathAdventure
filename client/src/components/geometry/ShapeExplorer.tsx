@@ -79,45 +79,83 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
     
     switch (selectedShape) {
       case 'triangle':
-        // Generate a custom triangle with SVG to show different angles
-        const triangleHeight = shapeSize * 1.5;
-        const triangleBase = shapeSize * 2;
+        // Calculate triangle vertices based on angles and side length
+        // We'll use the Law of Sines to calculate the positions
+        const scale = shapeSize / 10; // Scale factor to make the triangle fit the canvas
+        
+        // Convert angles to radians
+        const angleA_rad = angleA * Math.PI / 180;
+        const angleB_rad = angleB * Math.PI / 180;
+        const angleC_rad = angleC * Math.PI / 180;
+        
+        // Calculate triangle sides using Law of Sines
+        // We'll fix one side length and calculate others proportionally
+        const a = sideLength * scale;
+        const b = (sideLength * Math.sin(angleB_rad) / Math.sin(angleA_rad)) * scale;
+        const c = (sideLength * Math.sin(angleC_rad) / Math.sin(angleA_rad)) * scale;
+        
+        // Set up coordinate system
+        const width = Math.max(a, b, c) * 2; // Make canvas wide enough
+        const height = width;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        
+        // Calculate vertices
+        // Start with point A at the bottom left
+        const Ax = centerX - c/2;
+        const Ay = centerY + b/2;
+        
+        // Point B at the top
+        const Bx = centerX;
+        const By = centerY - Math.sqrt(c*c - (c/2)*(c/2)); // Using Pythagorean theorem
+        
+        // Point C at the bottom right
+        const Cx = centerX + c/2;
+        const Cy = Ay;
+        
+        // Adjust if the triangle would be too flat or invalid
+        const points = `${Ax},${Ay} ${Bx},${By} ${Cx},${Cy}`;
         
         return (
           <div className="relative">
             <svg 
-              width={triangleBase} 
-              height={triangleHeight}
-              viewBox={`0 0 ${triangleBase} ${triangleHeight}`}
+              width={width} 
+              height={height}
+              viewBox={`0 0 ${width} ${height}`}
             >
               <polygon 
-                points={`${triangleBase/2},0 0,${triangleHeight} ${triangleBase},${triangleHeight}`}
+                points={points}
                 fill={shapeColor}
                 stroke="black"
                 strokeWidth="1"
               />
+              
+              {/* Angle labels */}
+              <text x={Ax - 5} y={Ay + 20} fill="black" className="font-bold text-sm">A</text>
+              <text x={Bx - 5} y={By - 10} fill="black" className="font-bold text-sm">B</text>
+              <text x={Cx + 5} y={Cy + 20} fill="black" className="font-bold text-sm">C</text>
             </svg>
             
             {/* Angle markers */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
-              {angleB}°
-            </div>
-            <div className="absolute bottom-0 left-4 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
+            <div className="absolute bottom-0 left-1/4 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
               {angleA}°
             </div>
-            <div className="absolute bottom-0 right-4 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
+            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
+              {angleB}°
+            </div>
+            <div className="absolute bottom-0 right-1/4 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
               {angleC}°
             </div>
             
             {/* Side length markers */}
-            <div className="absolute bottom-8 left-1/4 text-slate-800 font-bold">
-              {sideLength}
+            <div className="absolute bottom-10 left-1/3 text-slate-800 bg-white bg-opacity-70 px-1 rounded font-bold">
+              c: {Math.round((c/scale) * 10) / 10}
             </div>
-            <div className="absolute bottom-8 right-1/4 text-slate-800 font-bold">
-              {sideLength}
+            <div className="absolute right-1/3 top-1/2 transform rotate-45 text-slate-800 bg-white bg-opacity-70 px-1 rounded font-bold">
+              a: {Math.round((a/scale) * 10) / 10}
             </div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 text-slate-800 font-bold">
-              {sideLength}
+            <div className="absolute left-1/3 top-1/2 transform -rotate-45 text-slate-800 bg-white bg-opacity-70 px-1 rounded font-bold">
+              b: {Math.round((b/scale) * 10) / 10}
             </div>
             
             {/* Triangle type label based on angles */}
