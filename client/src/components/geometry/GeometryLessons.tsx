@@ -2,13 +2,32 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { RiQuestionLine, RiCheckboxCircleLine } from 'react-icons/ri';
 
+// Helper function to generate polygon points
+const generatePolygonPoints = (sides: number, centerX: number, centerY: number, radius: number) => {
+  const points: string[] = [];
+  
+  for (let i = 0; i < sides; i++) {
+    // Calculate the angle for this vertex
+    const angle = (i * 2 * Math.PI / sides) - Math.PI / 2; // Start from top
+    
+    // Calculate X and Y coordinates
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+    
+    points.push(`${x},${y}`);
+  }
+  
+  return points.join(' ');
+};
+
 type Shape = 'triangle' | 'square' | 'circle';
 
 interface GeometryLessonsProps {
   selectedShape: Shape;
+  numSides?: number; // Add numSides as an optional prop
 }
 
-const GeometryLessons: React.FC<GeometryLessonsProps> = ({ selectedShape }) => {
+const GeometryLessons: React.FC<GeometryLessonsProps> = ({ selectedShape, numSides = 4 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswerChecked, setIsAnswerChecked] = useState(false);
   
@@ -194,6 +213,21 @@ const GeometryLessons: React.FC<GeometryLessonsProps> = ({ selectedShape }) => {
     setIsAnswerChecked(false);
   }, [selectedShape]);
 
+  // Helper function to get polygon names
+  const getPolygonName = (sides: number) => {
+    const polygonNames: {[key: number]: string} = {
+      3: 'Triangle',
+      4: 'Square',
+      5: 'Pentagon',
+      6: 'Hexagon',
+      7: 'Heptagon',
+      8: 'Octagon',
+      9: 'Nonagon',
+      10: 'Decagon'
+    };
+    return polygonNames[sides] || `${sides}-sided Polygon`;
+  };
+
   const getShapeInfo = () => {
     switch(selectedShape) {
       case 'triangle':
@@ -210,18 +244,38 @@ const GeometryLessons: React.FC<GeometryLessonsProps> = ({ selectedShape }) => {
           correctAnswer: currentQuestion.correctAnswer
         };
       case 'square':
-        return {
-          title: 'All About Squares',
-          description: 'A square is a special type of rectangle where all four sides have the same length. It has four right angles (90 degrees).',
-          types: [
-            { name: 'Square', desc: 'All sides equal, all angles 90°' },
-            { name: 'Rectangle', desc: 'Opposite sides equal, all angles 90°' },
-            { name: 'Rhombus', desc: 'All sides equal, opposite angles equal' }
-          ],
-          question: currentQuestion.question,
-          answers: currentQuestion.answers,
-          correctAnswer: currentQuestion.correctAnswer
-        };
+        // Handle polygon information based on numSides
+        if (numSides > 4) {
+          const polygonName = getPolygonName(numSides);
+          const angleSum = (numSides - 2) * 180;
+          const interiorAngle = angleSum / numSides;
+          
+          return {
+            title: `All About ${polygonName}s`,
+            description: `A ${polygonName.toLowerCase()} is a polygon with ${numSides} sides and ${numSides} angles. Regular ${polygonName.toLowerCase()}s have all sides and angles equal.`,
+            types: [
+              { name: 'Regular', desc: `All ${numSides} sides and angles are equal` },
+              { name: 'Interior Angle', desc: `Each angle is ${Math.round(interiorAngle)}° in a regular ${polygonName.toLowerCase()}` },
+              { name: 'Angle Sum', desc: `The sum of all angles is ${angleSum}°` }
+            ],
+            question: currentQuestion.question,
+            answers: currentQuestion.answers,
+            correctAnswer: currentQuestion.correctAnswer
+          };
+        } else {
+          return {
+            title: 'All About Squares',
+            description: 'A square is a special type of rectangle where all four sides have the same length. It has four right angles (90 degrees).',
+            types: [
+              { name: 'Square', desc: 'All sides equal, all angles 90°' },
+              { name: 'Rectangle', desc: 'Opposite sides equal, all angles 90°' },
+              { name: 'Rhombus', desc: 'All sides equal, opposite angles equal' }
+            ],
+            question: currentQuestion.question,
+            answers: currentQuestion.answers,
+            correctAnswer: currentQuestion.correctAnswer
+          };
+        }
       case 'circle':
         return {
           title: 'All About Circles',
@@ -280,7 +334,16 @@ const GeometryLessons: React.FC<GeometryLessonsProps> = ({ selectedShape }) => {
             )}
             {selectedShape === 'square' && (
               <svg className="w-full h-32 mx-auto" viewBox="0 0 100 100">
-                <rect x="20" y="20" width="60" height="60" fill="var(--primary)" />
+                {numSides === 4 ? (
+                  // Regular square
+                  <rect x="20" y="20" width="60" height="60" fill="var(--primary)" />
+                ) : (
+                  // Generate a polygon with the specified number of sides
+                  <polygon 
+                    points={generatePolygonPoints(numSides, 50, 50, 40)} 
+                    fill="var(--primary)" 
+                  />
+                )}
               </svg>
             )}
             {selectedShape === 'circle' && (
@@ -323,19 +386,19 @@ const GeometryLessons: React.FC<GeometryLessonsProps> = ({ selectedShape }) => {
               <>
                 <div className="text-center">
                   <div className="bg-primary bg-opacity-20 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2">
-                    <span className="font-bold">4</span>
+                    <span className="font-bold">{numSides}</span>
                   </div>
                   <p>Sides</p>
                 </div>
                 <div className="text-center">
                   <div className="bg-secondary bg-opacity-20 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2">
-                    <span className="font-bold">4</span>
+                    <span className="font-bold">{numSides}</span>
                   </div>
                   <p>Angles</p>
                 </div>
                 <div className="text-center">
                   <div className="bg-accent bg-opacity-20 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2">
-                    <span className="font-bold">4</span>
+                    <span className="font-bold">{numSides}</span>
                   </div>
                   <p>Vertices</p>
                 </div>

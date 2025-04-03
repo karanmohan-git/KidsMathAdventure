@@ -54,7 +54,10 @@ const GeometryModule: React.FC = () => {
       
       {/* Right Column: Learning Content */}
       <div className="w-full lg:w-2/5">
-        <GeometryLessons selectedShape={selectedShape} />
+        <GeometryLessons 
+          selectedShape={selectedShape} 
+          numSides={numSides} 
+        />
       </div>
     </div>
   );
