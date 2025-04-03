@@ -79,50 +79,54 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
     
     switch (selectedShape) {
       case 'triangle':
-        // Calculate triangle vertices based on angles and side length
-        // We'll use the Law of Sines to calculate the positions
-        const scale = shapeSize / 10; // Scale factor to make the triangle fit the canvas
+        // Use trigonometry to calculate the triangle points
+        const canvasSize = shapeSize * 3;
+        const centerX = canvasSize / 2;
+        const centerY = canvasSize / 2;
+        const radius = shapeSize; // Base size for the triangle
         
         // Convert angles to radians
         const angleA_rad = angleA * Math.PI / 180;
         const angleB_rad = angleB * Math.PI / 180;
         const angleC_rad = angleC * Math.PI / 180;
         
-        // Calculate triangle sides using Law of Sines
-        // We'll fix one side length and calculate others proportionally
-        const a = sideLength * scale;
-        const b = (sideLength * Math.sin(angleB_rad) / Math.sin(angleA_rad)) * scale;
-        const c = (sideLength * Math.sin(angleC_rad) / Math.sin(angleA_rad)) * scale;
+        // Calculate side lengths using Law of Sines
+        // If we set a (the side opposite to angle A) to be our base length
+        const a = sideLength;
+        // Then b = a * sin(B) / sin(A)
+        const b = a * Math.sin(angleB_rad) / Math.sin(angleA_rad);
+        // And c = a * sin(C) / sin(A)
+        const c = a * Math.sin(angleC_rad) / Math.sin(angleA_rad);
         
-        // Set up coordinate system
-        const width = Math.max(a, b, c) * 2; // Make canvas wide enough
-        const height = width;
-        const centerX = width / 2;
-        const centerY = height / 2;
+        // We'll use the Law of Cosines to find the coordinates
+        // First, place point A at the origin (bottom left)
+        const Ax = centerX - radius;
+        const Ay = centerY + radius / 2;
         
-        // Calculate vertices
-        // Start with point A at the bottom left
-        const Ax = centerX - c/2;
-        const Ay = centerY + b/2;
-        
-        // Point B at the top
-        const Bx = centerX;
-        const By = centerY - Math.sqrt(c*c - (c/2)*(c/2)); // Using Pythagorean theorem
-        
-        // Point C at the bottom right
-        const Cx = centerX + c/2;
+        // Place point C at (c, 0) (bottom right)
+        const Cx = Ax + (a * radius / 10);
         const Cy = Ay;
         
-        // Adjust if the triangle would be too flat or invalid
+        // Use Law of Cosines to find the coordinates of B
+        // angle at C = angleC
+        // We know sides a and b, and we need to find the coordinates of B
+        // B's x-coordinate is a*cos(C) from C
+        // B's y-coordinate is a*sin(C) from C
+        const Bx = Cx - (b * Math.cos(angleC_rad) * radius / 10);
+        const By = Cy - (b * Math.sin(angleC_rad) * radius / 10);
+        
+        // Create the triangle points
         const points = `${Ax},${Ay} ${Bx},${By} ${Cx},${Cy}`;
         
         return (
           <div className="relative">
             <svg 
-              width={width} 
-              height={height}
-              viewBox={`0 0 ${width} ${height}`}
+              width={canvasSize} 
+              height={canvasSize}
+              viewBox={`0 0 ${canvasSize} ${canvasSize}`}
+              className="border border-gray-200"
             >
+              {/* Draw the triangle */}
               <polygon 
                 points={points}
                 fill={shapeColor}
@@ -130,39 +134,47 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
                 strokeWidth="1"
               />
               
-              {/* Angle labels */}
-              <text x={Ax - 5} y={Ay + 20} fill="black" className="font-bold text-sm">A</text>
-              <text x={Bx - 5} y={By - 10} fill="black" className="font-bold text-sm">B</text>
-              <text x={Cx + 5} y={Cy + 20} fill="black" className="font-bold text-sm">C</text>
+              {/* Label the vertices */}
+              <text x={Ax - 15} y={Ay + 5} fill="black" className="font-bold text-xs">A ({angleA}°)</text>
+              <text x={Bx - 5} y={By - 10} fill="black" className="font-bold text-xs">B ({angleB}°)</text>
+              <text x={Cx + 5} y={Cy + 5} fill="black" className="font-bold text-xs">C ({angleC}°)</text>
+              
+              {/* Label the sides */}
+              <text 
+                x={(Ax + Bx) / 2} 
+                y={(Ay + By) / 2 - 10} 
+                fill="black" 
+                className="font-bold text-xs bg-white px-1 rounded"
+              >
+                c: {Math.round(c * 10) / 10}
+              </text>
+              <text 
+                x={(Bx + Cx) / 2 + 5} 
+                y={(By + Cy) / 2} 
+                fill="black" 
+                className="font-bold text-xs bg-white px-1 rounded"
+              >
+                a: {Math.round(a * 10) / 10}
+              </text>
+              <text 
+                x={(Ax + Cx) / 2} 
+                y={(Ay + Cy) / 2 + 15} 
+                fill="black" 
+                className="font-bold text-xs bg-white px-1 rounded"
+              >
+                b: {Math.round(b * 10) / 10}
+              </text>
             </svg>
             
-            {/* Angle markers */}
-            <div className="absolute bottom-0 left-1/4 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
-              {angleA}°
-            </div>
-            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
-              {angleB}°
-            </div>
-            <div className="absolute bottom-0 right-1/4 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
-              {angleC}°
+            {/* Triangle type label */}
+            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-70 px-2 py-1 rounded text-black text-xs">
+              {angleA === angleB && angleB === angleC ? 'Equilateral Triangle' : 
+                (angleA === angleB || angleB === angleC || angleA === angleC) ? 'Isosceles Triangle' : 'Scalene Triangle'}
             </div>
             
-            {/* Side length markers */}
-            <div className="absolute bottom-10 left-1/3 text-slate-800 bg-white bg-opacity-70 px-1 rounded font-bold">
-              c: {Math.round((c/scale) * 10) / 10}
-            </div>
-            <div className="absolute right-1/3 top-1/2 transform rotate-45 text-slate-800 bg-white bg-opacity-70 px-1 rounded font-bold">
-              a: {Math.round((a/scale) * 10) / 10}
-            </div>
-            <div className="absolute left-1/3 top-1/2 transform -rotate-45 text-slate-800 bg-white bg-opacity-70 px-1 rounded font-bold">
-              b: {Math.round((b/scale) * 10) / 10}
-            </div>
-            
-            {/* Triangle type label based on angles */}
-            <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-70 px-2 py-1 rounded text-black text-xs">
-              {angleA === angleB && angleB === angleC ? 'Equilateral' : 
-                (angleA === angleB || angleB === angleC || angleA === angleC) ? 'Isosceles' : 'Scalene'} 
-              Triangle
+            {/* Angle sum verification */}
+            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-70 px-2 py-1 rounded text-black text-xs">
+              Sum of angles: {angleA + angleB + angleC}° (must equal 180°)
             </div>
           </div>
         );
