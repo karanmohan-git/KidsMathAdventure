@@ -1,24 +1,59 @@
+/**
+ * Geometry Module Component
+ * 
+ * This component provides an interactive geometry exploration experience for children ages 6-8.
+ * It allows children to explore different shapes, modify their properties, and learn about
+ * geometric concepts through hands-on interaction and guided lessons.
+ */
 import React, { useState } from 'react';
 import ShapeExplorer from './ShapeExplorer';
 import GeometryLessons from './GeometryLessons';
 import { calculateGeometryProperties } from '@/lib/geometryCalculations';
 
+/**
+ * Shape type definition
+ * Represents the three basic shapes available in the geometry module:
+ * - triangle: A three-sided polygon
+ * - square: A four-sided polygon with equal sides (extends to other regular polygons)
+ * - circle: A round shape where all points are equidistant from the center
+ */
 type Shape = 'triangle' | 'square' | 'circle';
 
+/**
+ * GeometryModule Component
+ * 
+ * The main component for the geometry learning experience that provides:
+ * 1. Interactive shape manipulation with real-time visual feedback
+ * 2. Controls for various shape properties (size, angles, colors, etc.)
+ * 3. Educational content about geometric shapes and their properties
+ * 4. Age-appropriate quizzes and challenges
+ */
 const GeometryModule: React.FC = () => {
+  // Selected shape type (triangle, square/polygon, or circle)
   const [selectedShape, setSelectedShape] = useState<Shape>('triangle');
+  // Overall visual size of the shape in the display
   const [shapeSize, setShapeSize] = useState(100);
+  // Length of each side for regular shapes
   const [sideLength, setSideLength] = useState(10);
+  // General angle property (used differently for each shape)
   const [angle, setAngle] = useState(60);
-  // Individual angles for triangle
+  
+  // Individual angles for triangle - allows creating different triangle types
   const [angleA, setAngleA] = useState(60);
   const [angleB, setAngleB] = useState(60);
   const [angleC, setAngleC] = useState(60);
-  const [shapeColor, setShapeColor] = useState('#3b82f6'); // Default blue color
-  const [numSides, setNumSides] = useState(4); // Default 4 sides for square, can go up to 10
-  const [width, setWidth] = useState(10); // For rectangle width
-  const [height, setHeight] = useState(10); // For rectangle height
   
+  // Visual color of the shape - helps engage children through customization
+  const [shapeColor, setShapeColor] = useState('#3b82f6'); // Default blue color
+  
+  // Number of sides for polygon shapes - enables exploration beyond basic shapes
+  const [numSides, setNumSides] = useState(4); // Default 4 sides for square, can go up to 10
+  
+  // Width and height for rectangle exploration
+  const [width, setWidth] = useState(10); 
+  const [height, setHeight] = useState(10);
+  
+  // Calculate geometric properties based on current shape configuration
   const properties = calculateGeometryProperties(selectedShape, sideLength, angle, numSides, width, height);
   
   return (

@@ -1,3 +1,10 @@
+/**
+ * Algebra Module Component
+ *
+ * This component provides an interactive algebra learning experience for children ages 6-8.
+ * It focuses on basic algebraic concepts like solving for missing numbers in simple equations,
+ * introducing mathematical thinking in an age-appropriate way.
+ */
 import React, { useState } from 'react';
 import AlgebraProblem from './AlgebraProblem';
 import AlgebraFeedback from './AlgebraFeedback';
@@ -14,19 +21,44 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { generateAlgebraProblem } from '@/lib/algebraProblems';
 
+/**
+ * AlgebraModule Component
+ * 
+ * Main component for the algebra learning module that includes:
+ * 1. Interactive algebra problems with varying difficulty levels
+ * 2. User input for answers with validation
+ * 3. Hints and detailed explanations
+ * 4. Visual feedback for correct/incorrect answers
+ * 5. Progress tracking and gamification elements
+ */
 const AlgebraModule: React.FC = () => {
+  // Current algebra problem to display
   const [currentProblem, setCurrentProblem] = useState(generateAlgebraProblem(1));
+  // User's input answer as a string (converted to number when checking)
   const [userAnswer, setUserAnswer] = useState('');
+  // Whether to show the feedback component after checking answer
   const [showFeedback, setShowFeedback] = useState(false);
+  // Whether the user's answer was correct
   const [isCorrect, setIsCorrect] = useState(false);
+  // Whether to show detailed hints
   const [showHints, setShowHints] = useState(false);
+  // Hook for displaying toast notifications
   const { toast } = useToast();
 
+  /**
+   * Updates the userAnswer state as the child types in the input field
+   * @param e - Input change event
+   */
   const handleAnswerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserAnswer(e.target.value);
   };
 
+  /**
+   * Validates and checks the user's answer against the correct answer
+   * Provides appropriate feedback via toast notifications
+   */
   const checkAnswer = () => {
+    // Validate that an answer was provided
     if (userAnswer === '') {
       toast({
         title: "Don't forget to answer!",
@@ -36,8 +68,10 @@ const AlgebraModule: React.FC = () => {
       return;
     }
 
+    // Convert the string input to a number
     const parsedAnswer = parseInt(userAnswer, 10);
     
+    // Validate that the input is a number
     if (isNaN(parsedAnswer)) {
       toast({
         title: "That's not a number",
@@ -47,10 +81,12 @@ const AlgebraModule: React.FC = () => {
       return;
     }
 
+    // Check if the answer is correct
     const correct = parsedAnswer === currentProblem.answer;
     setIsCorrect(correct);
     setShowFeedback(true);
 
+    // Display appropriate feedback based on correctness
     if (correct) {
       toast({
         title: "Great job!",
@@ -66,6 +102,10 @@ const AlgebraModule: React.FC = () => {
     }
   };
 
+  /**
+   * Generates a new problem and resets the module state
+   * Called when user completes a problem and wants to continue
+   */
   const nextProblem = () => {
     setCurrentProblem(generateAlgebraProblem(1));
     setUserAnswer('');

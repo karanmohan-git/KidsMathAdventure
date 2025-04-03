@@ -1,3 +1,10 @@
+/**
+ * Python Module Component
+ * 
+ * This component provides an interactive Python learning experience for children.
+ * It includes a code editor, output display, and educational lessons that introduce
+ * programming concepts in an age-appropriate way for 6-8 year old learners.
+ */
 import React, { useState } from 'react';
 import CodeEditor from './CodeEditor';
 import OutputDisplay from './OutputDisplay';
@@ -5,6 +12,15 @@ import { RiCheckLine, RiArrowRightLine, RiLockLine, RiLightbulbFlashLine, RiArro
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+/**
+ * Pre-written code examples for different Python lessons
+ * 
+ * Each example is designed to be simple enough for young children to understand,
+ * while introducing fundamental programming concepts:
+ * - basics: Introduces comments, print statements, and variables
+ * - math: Shows how Python can be used for basic mathematical operations
+ * - shapes: Demonstrates visual output with shape-drawing functions
+ */
 const lessonExamples = {
   basics: '# This is a comment - the computer ignores it!\n\n# Try printing something\nprint("Hello, I am coding in Python!")\n\n# Variables store information\nmy_name = "Coder"\nprint("My name is", my_name)',
   
@@ -13,12 +29,28 @@ const lessonExamples = {
   shapes: '# Let\'s draw some colorful shapes!\n\n# Try a triangle\ndraw_triangle(size=100, color="blue")\n\n# You can also draw other shapes\n# Uncomment these lines (remove the #) to try them\n\n# draw_square(size=80, color="red")\n# draw_circle(size=120, color="green")',
 };
 
+/**
+ * PythonModule Component
+ * 
+ * The main component for the Python learning experience. It provides:
+ * 1. An interactive code editor where children can write and modify Python code
+ * 2. A visual output display showing the results of their code execution
+ * 3. Age-appropriate lessons with examples and instructions
+ * 4. Educational facts about Python to spark interest
+ */
 const PythonModule: React.FC = () => {
+  // Track which lesson is currently active
   const [currentLesson, setCurrentLesson] = useState<'basics' | 'math' | 'shapes'>('basics');
 
+  /**
+   * Loads a selected code example into the editor
+   * Uses custom events to communicate between components without requiring direct props
+   * 
+   * @param exampleType - The type of example to load ('basics', 'math', or 'shapes')
+   */
   const loadExample = (exampleType: 'basics' | 'math' | 'shapes') => {
     setCurrentLesson(exampleType);
-    // We will dispatch a custom event to update the code editor
+    // Dispatch a custom event to update the code editor with the selected example
     const loadExampleEvent = new CustomEvent('load-python-example', { 
       detail: { code: lessonExamples[exampleType] } 
     });
