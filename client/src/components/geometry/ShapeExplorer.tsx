@@ -15,6 +15,12 @@ interface ShapeExplorerProps {
   setSideLength: (length: number) => void;
   angle: number;
   setAngle: (angle: number) => void;
+  angleA: number;
+  setAngleA: (angle: number) => void;
+  angleB: number;
+  setAngleB: (angle: number) => void;
+  angleC: number;
+  setAngleC: (angle: number) => void;
   shapeColor: string;
   setShapeColor: (color: string) => void;
   numSides: number;
@@ -35,6 +41,12 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
   setSideLength,
   angle,
   setAngle,
+  angleA,
+  setAngleA,
+  angleB,
+  setAngleB,
+  angleC,
+  setAngleC,
   shapeColor,
   setShapeColor,
   numSides,
@@ -67,39 +79,52 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
     
     switch (selectedShape) {
       case 'triangle':
+        // Generate a custom triangle with SVG to show different angles
+        const triangleHeight = shapeSize * 1.5;
+        const triangleBase = shapeSize * 2;
+        
         return (
           <div className="relative">
-            <div 
-              className="w-0 h-0"
-              style={{
-                borderLeft: `${shapeSize}px solid transparent`,
-                borderRight: `${shapeSize}px solid transparent`,
-                borderBottom: `${shapeSize * 1.73}px solid`,
-                borderBottomColor: shapeColor,
-              }}
+            <svg 
+              width={triangleBase} 
+              height={triangleHeight}
+              viewBox={`0 0 ${triangleBase} ${triangleHeight}`}
             >
-            </div>
+              <polygon 
+                points={`${triangleBase/2},0 0,${triangleHeight} ${triangleBase},${triangleHeight}`}
+                fill={shapeColor}
+                stroke="black"
+                strokeWidth="1"
+              />
+            </svg>
             
             {/* Angle markers */}
-            <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
-              {angle}°
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
+              {angleB}°
             </div>
-            <div className="absolute bottom-16 left-8 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
-              {angle}°
+            <div className="absolute bottom-0 left-4 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
+              {angleA}°
             </div>
-            <div className="absolute bottom-16 right-8 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
-              {angle}°
+            <div className="absolute bottom-0 right-4 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
+              {angleC}°
             </div>
             
             {/* Side length markers */}
-            <div className="absolute bottom-24 left-0 -translate-x-4 text-slate-800 font-bold">
+            <div className="absolute bottom-8 left-1/4 text-slate-800 font-bold">
               {sideLength}
             </div>
-            <div className="absolute bottom-24 right-0 translate-x-4 text-slate-800 font-bold">
+            <div className="absolute bottom-8 right-1/4 text-slate-800 font-bold">
               {sideLength}
             </div>
-            <div className="absolute bottom-0 text-slate-800 font-bold mt-2">
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 text-slate-800 font-bold">
               {sideLength}
+            </div>
+            
+            {/* Triangle type label based on angles */}
+            <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-70 px-2 py-1 rounded text-black text-xs">
+              {angleA === angleB && angleB === angleC ? 'Equilateral' : 
+                (angleA === angleB || angleB === angleC || angleA === angleC) ? 'Isosceles' : 'Scalene'} 
+              Triangle
             </div>
           </div>
         );
@@ -183,22 +208,64 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
           );
         }
       case 'circle':
+        const diameter = sideLength * 2;
+        const circumference = Math.round((2 * Math.PI * sideLength) * 10) / 10;
+        
         return (
           <div className="relative">
-            <div 
-              style={{
-                width: `${shapeSize * 2}px`,
-                height: `${shapeSize * 2}px`,
-                backgroundColor: shapeColor,
-                borderRadius: '50%',
-              }}
+            <svg 
+              width={shapeSize * 3} 
+              height={shapeSize * 3}
+              viewBox={`0 0 ${shapeSize * 3} ${shapeSize * 3}`}
             >
-            </div>
+              <circle 
+                cx={shapeSize * 1.5} 
+                cy={shapeSize * 1.5} 
+                r={shapeSize} 
+                fill={shapeColor}
+                stroke="black"
+                strokeWidth="1"
+              />
+              {/* Radius line */}
+              <line 
+                x1={shapeSize * 1.5} 
+                y1={shapeSize * 1.5} 
+                x2={shapeSize * 2.5} 
+                y2={shapeSize * 1.5}
+                stroke="white" 
+                strokeWidth="2"
+              />
+              {/* Diameter line */}
+              <line 
+                x1={shapeSize * 0.5} 
+                y1={shapeSize * 1.5} 
+                x2={shapeSize * 2.5} 
+                y2={shapeSize * 1.5}
+                stroke="rgba(255,255,255,0.5)" 
+                strokeWidth="1" 
+                strokeDasharray="5,5"
+              />
+              {/* Center point */}
+              <circle 
+                cx={shapeSize * 1.5} 
+                cy={shapeSize * 1.5} 
+                r="3" 
+                fill="white"
+              />
+            </svg>
             
-            {/* Radius marker */}
-            <div className="absolute top-1/2 left-1/2 w-1/2 h-0.5 bg-white"></div>
-            <div className="absolute top-1/2 left-3/4 -translate-y-8 text-black bg-white bg-opacity-70 px-1 rounded font-bold">
-              Radius: {sideLength}
+            {/* Circle definitions */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-8 bg-white bg-opacity-70 px-2 py-1 rounded text-black text-sm font-bold">
+              Center
+            </div>
+            <div className="absolute top-1/2 right-1/4 transform translate-x-2 -translate-y-6 bg-white bg-opacity-70 px-2 py-1 rounded text-black text-sm font-bold">
+              Radius: {sideLength} units
+            </div>
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-70 px-2 py-1 rounded text-black text-sm">
+              Diameter: {diameter} units
+            </div>
+            <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-70 px-2 py-1 rounded text-black text-sm">
+              Circumference: {circumference} units (2πr)
             </div>
           </div>
         );
@@ -223,7 +290,7 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
               className={`${selectedShape === 'square' ? 'bg-primary text-white' : 'bg-gray-200 text-slate-800'} px-4 py-2 rounded-lg text-sm font-bold`}
               onClick={() => setSelectedShape('square')}
             >
-              Square
+              Sides
             </Button>
             <Button 
               className={`${selectedShape === 'circle' ? 'bg-primary text-white' : 'bg-gray-200 text-slate-800'} px-4 py-2 rounded-lg text-sm font-bold`}
@@ -293,17 +360,62 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
             </div>
             {selectedShape === 'triangle' && (
               <div>
-                <label className="block mb-2 font-bold">Angle:</label>
-                <div className="flex items-center">
-                  <Input
-                    type="number"
-                    value={angle}
-                    onChange={(e) => setAngle(Number(e.target.value))}
-                    className="w-full p-2 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
-                    min={20}
-                    max={120}
-                  />
-                  <span className="ml-2">degrees</span>
+                <label className="block mb-2 font-bold">Angles:</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-xs font-medium">Angle A</label>
+                    <Input
+                      type="number"
+                      value={angleA}
+                      onChange={(e) => {
+                        const newAngleA = Number(e.target.value);
+                        // Ensure angles sum to 180
+                        const remaining = 180 - newAngleA - angleC;
+                        setAngleA(newAngleA);
+                        setAngleB(remaining > 0 ? remaining : 1);
+                      }}
+                      className="w-full p-2 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
+                      min={1}
+                      max={178}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium">Angle B</label>
+                    <Input
+                      type="number"
+                      value={angleB}
+                      onChange={(e) => {
+                        const newAngleB = Number(e.target.value);
+                        // Ensure angles sum to 180
+                        const remaining = 180 - newAngleB - angleC;
+                        setAngleB(newAngleB);
+                        setAngleA(remaining > 0 ? remaining : 1);
+                      }}
+                      className="w-full p-2 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
+                      min={1}
+                      max={178}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium">Angle C</label>
+                    <Input
+                      type="number"
+                      value={angleC}
+                      onChange={(e) => {
+                        const newAngleC = Number(e.target.value);
+                        // Ensure angles sum to 180
+                        const remaining = 180 - newAngleC - angleA;
+                        setAngleC(newAngleC);
+                        setAngleB(remaining > 0 ? remaining : 1);
+                      }}
+                      className="w-full p-2 border-2 border-gray-300 rounded-lg focus:border-primary focus:outline-none"
+                      min={1}
+                      max={178}
+                    />
+                  </div>
+                </div>
+                <div className="text-center mt-1 text-sm">
+                  Sum: {angleA + angleB + angleC}° (must equal 180°)
                 </div>
               </div>
             )}
@@ -362,43 +474,92 @@ const ShapeExplorer: React.FC<ShapeExplorerProps> = ({
       </div>
       
       <div className="bg-white p-6 rounded-2xl shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Shape Measurements</h2>
+        <h2 className="text-2xl font-bold mb-4">Math Fun Facts</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-primary bg-opacity-10 p-4 rounded-xl">
-            <h3 className="font-bold text-primary text-center mb-2">Perimeter</h3>
-            <p className="text-center text-3xl font-bold">{properties.perimeter}</p>
-            <p className="text-center text-sm mt-1">units</p>
+        {selectedShape === 'triangle' && (
+          <div className="space-y-4">
+            <div className="p-4 bg-primary bg-opacity-10 rounded-xl">
+              <h3 className="font-bold mb-2">Triangle Types</h3>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>Equilateral:</strong> All sides and angles are equal (60° each)</li>
+                <li><strong>Isosceles:</strong> Two sides and two angles are equal</li>
+                <li><strong>Scalene:</strong> All sides and angles are different</li>
+              </ul>
+            </div>
+            
+            <div className="p-4 bg-secondary bg-opacity-10 rounded-xl">
+              <h3 className="font-bold mb-2">Triangle Formulas</h3>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>Area:</strong> A = ½ × base × height</li>
+                <li><strong>Perimeter:</strong> P = side1 + side2 + side3</li>
+                <li><strong>Angle Sum:</strong> Always equals 180°</li>
+              </ul>
+            </div>
+            
+            <div className="p-4 bg-yellow-50 rounded-xl border-l-4 border-warning">
+              <h3 className="font-bold mb-2">Did you know?</h3>
+              <p>The Pythagorean theorem states that in a right triangle, the square of the length of the hypotenuse equals the sum of the squares of the other two sides: a² + b² = c².</p>
+            </div>
           </div>
-          
-          <div className="bg-secondary bg-opacity-10 p-4 rounded-xl">
-            <h3 className="font-bold text-secondary text-center mb-2">Area</h3>
-            <p className="text-center text-3xl font-bold">{properties.area}</p>
-            <p className="text-center text-sm mt-1">square units</p>
-          </div>
-          
-          <div className="bg-accent bg-opacity-10 p-4 rounded-xl">
-            <h3 className="font-bold text-accent text-center mb-2">
-              {selectedShape === 'circle' ? 'Diameter' : 'Sum of Angles'}
-            </h3>
-            <p className="text-center text-3xl font-bold">
-              {selectedShape === 'circle' ? (sideLength * 2) : properties.angleSum}
-              {selectedShape !== 'circle' && '°'}
-            </p>
-            <p className="text-center text-sm mt-1">
-              {selectedShape === 'circle' ? 'units' : 'degrees'}
-            </p>
-          </div>
-        </div>
+        )}
         
-        <div className="mt-6 p-4 bg-yellow-50 rounded-xl border-l-4 border-warning">
-          <h3 className="font-bold mb-2">Did you know?</h3>
-          <p>
-            {selectedShape === 'triangle' && 'The angles in any triangle always add up to 180 degrees!'}
-            {selectedShape === 'square' && 'A square has 4 equal sides and 4 right angles (90°)!'}
-            {selectedShape === 'circle' && 'The circumference of a circle is about 3.14 (π) times its diameter!'}
-          </p>
-        </div>
+        {selectedShape === 'square' && (
+          <div className="space-y-4">
+            <div className="p-4 bg-primary bg-opacity-10 rounded-xl">
+              <h3 className="font-bold mb-2">Regular Polygon Properties</h3>
+              <p className="mb-2">A regular polygon has all sides equal length and all angles equal.</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>Triangle (3 sides):</strong> Sum of angles = 180°</li>
+                <li><strong>Quadrilateral (4 sides):</strong> Sum of angles = 360°</li>
+                <li><strong>Pentagon (5 sides):</strong> Sum of angles = 540°</li>
+                <li><strong>Hexagon (6 sides):</strong> Sum of angles = 720°</li>
+              </ul>
+            </div>
+            
+            <div className="p-4 bg-secondary bg-opacity-10 rounded-xl">
+              <h3 className="font-bold mb-2">Polygon Angle Formula</h3>
+              <p>For any polygon with n sides:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>Sum of interior angles:</strong> (n - 2) × 180°</li>
+                <li><strong>Each angle in a regular polygon:</strong> (n - 2) × 180° ÷ n</li>
+              </ul>
+            </div>
+            
+            <div className="p-4 bg-yellow-50 rounded-xl border-l-4 border-warning">
+              <h3 className="font-bold mb-2">Did you know?</h3>
+              <p>There are only five regular polyhedra (3D shapes with identical faces): tetrahedron, cube, octahedron, dodecahedron, and icosahedron. These are called the Platonic solids.</p>
+            </div>
+          </div>
+        )}
+        
+        {selectedShape === 'circle' && (
+          <div className="space-y-4">
+            <div className="p-4 bg-primary bg-opacity-10 rounded-xl">
+              <h3 className="font-bold mb-2">Circle Basics</h3>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>Radius:</strong> Distance from center to edge</li>
+                <li><strong>Diameter:</strong> Distance across circle through center (2 × radius)</li>
+                <li><strong>Circumference:</strong> Distance around the circle (2 × π × radius)</li>
+                <li><strong>Area:</strong> Amount of space inside the circle (π × radius²)</li>
+              </ul>
+            </div>
+            
+            <div className="p-4 bg-secondary bg-opacity-10 rounded-xl">
+              <h3 className="font-bold mb-2">Circle Formulas</h3>
+              <p>If r = radius and d = diameter:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>Circumference:</strong> C = 2πr or C = πd</li>
+                <li><strong>Area:</strong> A = πr²</li>
+                <li><strong>Diameter:</strong> d = 2r</li>
+              </ul>
+            </div>
+            
+            <div className="p-4 bg-yellow-50 rounded-xl border-l-4 border-warning">
+              <h3 className="font-bold mb-2">Did you know?</h3>
+              <p>π (pi) is approximately 3.14159 and goes on forever without repeating. It's the ratio of a circle's circumference to its diameter and appears in many important math formulas!</p>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

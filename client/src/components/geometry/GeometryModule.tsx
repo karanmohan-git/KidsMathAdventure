@@ -10,6 +10,10 @@ const GeometryModule: React.FC = () => {
   const [shapeSize, setShapeSize] = useState(100);
   const [sideLength, setSideLength] = useState(10);
   const [angle, setAngle] = useState(60);
+  // Individual angles for triangle
+  const [angleA, setAngleA] = useState(60);
+  const [angleB, setAngleB] = useState(60);
+  const [angleC, setAngleC] = useState(60);
   const [shapeColor, setShapeColor] = useState('#3b82f6'); // Default blue color
   const [numSides, setNumSides] = useState(4); // Default 4 sides for square, can go up to 10
   const [width, setWidth] = useState(10); // For rectangle width
@@ -30,6 +34,12 @@ const GeometryModule: React.FC = () => {
           setSideLength={setSideLength}
           angle={angle}
           setAngle={setAngle}
+          angleA={angleA}
+          setAngleA={setAngleA}
+          angleB={angleB}
+          setAngleB={setAngleB}
+          angleC={angleC}
+          setAngleC={setAngleC}
           shapeColor={shapeColor}
           setShapeColor={setShapeColor}
           numSides={numSides}
