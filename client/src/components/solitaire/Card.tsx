@@ -96,7 +96,7 @@ export const Card: React.FC<CardProps> = ({
       >
         <div className="absolute inset-0 rounded-md bg-white/5 p-1">
           <div className="w-full h-full border-2 border-dashed border-white/20 rounded flex items-center justify-center">
-            <div className="text-4xl text-white/50 rotate-45">♠</div>
+            <div className="text-6xl text-white font-bold">K</div>
           </div>
         </div>
       </div>
@@ -115,25 +115,24 @@ export const Card: React.FC<CardProps> = ({
       data-card-id={card.id}
     >
       <div
-        className={`absolute top-1 left-2 text-${color === "red" ? "red-600" : "black"}`}
+        className="absolute top-1 left-2"
+        style={{ color: color === "red" ? "#dc2626" : "#000000" }}
       >
         <div className="text-lg font-bold">{displayValue}</div>
         <div className="text-xl -mt-2">{symbol}</div>
       </div>
 
       <div
-        className={`absolute bottom-1 right-2 text-${
-          color === "red" ? "red-600" : "black"
-        } rotate-180`}
+        className="absolute bottom-1 right-2 rotate-180"
+        style={{ color: color === "red" ? "#dc2626" : "#000000" }}
       >
         <div className="text-lg font-bold">{displayValue}</div>
         <div className="text-xl -mt-2">{symbol}</div>
       </div>
 
       <div
-        className={`absolute inset-0 flex items-center justify-center text-4xl text-${
-          color === "red" ? "red-600" : "black"
-        }`}
+        className="absolute inset-0 flex items-center justify-center text-4xl"
+        style={{ color: color === "red" ? "#dc2626" : "#000000" }}
       >
         {symbol}
       </div>

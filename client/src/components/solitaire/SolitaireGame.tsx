@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useReducer } from "react";
 import { Card, CardType } from "./Card";
 import {
   createDeck,
@@ -9,6 +9,16 @@ import {
   checkWinCondition,
   getAvailableMoves,
 } from "./GameLogic";
+
+// Define game state type for undo functionality
+type GameState = {
+  stockPile: CardType[];
+  wastePile: CardType[];
+  tableauPiles: CardType[][];
+  foundationPiles: CardType[][];
+  moves: number;
+  score: number;
+};
 import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Toast } from "@/components/ui/toast";
@@ -35,6 +45,7 @@ export const SolitaireGame: React.FC = () => {
     card: CardType;
   } | null>(null);
   const [showHint, setShowHint] = useState(false);
+  const [gameHistory, setGameHistory] = useState<GameState[]>([]);
   const { toast } = useToast();
 
   // Start a new game
@@ -70,6 +81,48 @@ export const SolitaireGame: React.FC = () => {
     }
   }, [foundationPiles, toast]);
 
+  // Save game state to history before each move
+  const saveGameState = useCallback(() => {
+    const currentState: GameState = {
+      stockPile: [...stockPile],
+      wastePile: [...wastePile],
+      tableauPiles: tableauPiles.map(pile => [...pile]),
+      foundationPiles: foundationPiles.map(pile => [...pile]),
+      moves,
+      score
+    };
+    setGameHistory(prev => [...prev, currentState]);
+  }, [stockPile, wastePile, tableauPiles, foundationPiles, moves, score]);
+
+  // Undo the last move
+  const handleUndo = useCallback(() => {
+    if (gameHistory.length === 0) {
+      toast({
+        title: "Cannot Undo",
+        description: "No moves to undo",
+        duration: 3000,
+      });
+      return;
+    }
+
+    const previousState = gameHistory[gameHistory.length - 1];
+    setStockPile(previousState.stockPile);
+    setWastePile(previousState.wastePile);
+    setTableauPiles(previousState.tableauPiles);
+    setFoundationPiles(previousState.foundationPiles);
+    setMoves(previousState.moves);
+    setScore(previousState.score);
+    
+    // Remove the last state from history
+    setGameHistory(prev => prev.slice(0, -1));
+    
+    toast({
+      title: "Move Undone",
+      description: "Last move has been reversed",
+      duration: 2000,
+    });
+  }, [gameHistory, toast]);
+
   // Generate a hint
   const generateHint = useCallback(() => {
     const availableMoves = getAvailableMoves(tableauPiles, foundationPiles, wastePile);
@@ -104,13 +157,20 @@ export const SolitaireGame: React.FC = () => {
     if (stockPile.length === 0) {
       // Reshuffle waste pile into stock pile
       if (wastePile.length > 0) {
+        // Save game state before making changes
+        saveGameState();
+        
         setStockPile(
           wastePile.map((card) => ({ ...card, faceUp: false })).reverse()
         );
         setWastePile([]);
+        setMoves((prev) => prev + 1);
       }
       return;
     }
+
+    // Save game state before making changes
+    saveGameState();
 
     // Draw 1 card from stock to waste
     const numToDraw = 1;
@@ -164,6 +224,9 @@ export const SolitaireGame: React.FC = () => {
     
     // Check if the cards can be added to this tableau pile
     if (canAddToTableau(card, topCard)) {
+      // Save game state before making changes
+      saveGameState();
+      
       // Create new tableau piles array
       const newTableauPiles = [...tableauPiles];
       
@@ -218,6 +281,9 @@ export const SolitaireGame: React.FC = () => {
     
     // Check if the card can be added to this foundation pile
     if (canAddToFoundation(card, topCard)) {
+      // Save game state before making changes
+      saveGameState();
+      
       // Create new foundation piles array
       const newFoundationPiles = [...foundationPiles];
       
@@ -267,6 +333,9 @@ export const SolitaireGame: React.FC = () => {
       const topCard = foundationPile.length > 0 ? foundationPile[foundationPile.length - 1] : null;
       
       if (canAddToFoundation(card, topCard)) {
+        // Save game state before making changes
+        saveGameState();
+        
         // Create new foundation piles array
         const newFoundationPiles = [...foundationPiles];
         
@@ -290,6 +359,9 @@ export const SolitaireGame: React.FC = () => {
       const topCard = tableauPile.length > 0 ? tableauPile[tableauPile.length - 1] : null;
       
       if (canAddToTableau(card, topCard)) {
+        // Save game state before making changes
+        saveGameState();
+        
         // Create new tableau piles array
         const newTableauPiles = [...tableauPiles];
         
@@ -325,6 +397,9 @@ export const SolitaireGame: React.FC = () => {
         const topCard = foundationPile.length > 0 ? foundationPile[foundationPile.length - 1] : null;
         
         if (canAddToFoundation(card, topCard)) {
+          // Save game state before making changes
+          saveGameState();
+          
           // Create new foundation piles array
           const newFoundationPiles = [...foundationPiles];
           
@@ -476,6 +551,14 @@ export const SolitaireGame: React.FC = () => {
               variant="secondary"
             >
               New Game
+            </Button>
+            
+            <Button 
+              onClick={handleUndo}
+              variant="outline"
+              disabled={gameWon || gameHistory.length === 0}
+            >
+              Undo
             </Button>
             
             <Button 
