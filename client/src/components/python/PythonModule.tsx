@@ -27,6 +27,12 @@ const lessonExamples = {
   math: '# Python can do math!\n\n# Addition\nprint(2 + 3)  # This equals 5\n\n# Subtraction\nprint(10 - 4)  # This equals 6\n\n# Multiplication\nprint(5 * 3)  # This equals 15\n\n# Division\nprint(20 / 5)  # This equals 4',
   
   shapes: '# Let\'s draw some colorful shapes!\n\n# Try a triangle\ndraw_triangle(size=100, color="blue")\n\n# You can also draw other shapes\n# Uncomment these lines (remove the #) to try them\n\n# draw_square(size=80, color="red")\n# draw_circle(size=120, color="green")',
+  
+  game: '# Small Number Guessing Game\n\n# The secret number\nsecret = 7\n\n# Ask the player to guess\nprint("I\'m thinking of a number between 1 and 10")\nprint("Can you guess what it is?")\n\n# Check their guess\nguess = 7  # Change this number to make a guess!\n\nprint("You guessed:", guess)\n\nif guess == secret:\n    print("You got it right! Great job!")\nelse:\n    print("Not quite. Try again!")',
+  
+  story: '# Let\'s tell a story with Python!\n\n# Create character information\ncharacter_name = "Alex"\ncharacter_age = 7\nfavorite_color = "purple"\npet_type = "robot dog"\npet_name = "Sparky"\n\n# Tell the story using variables\nprint("Once upon a time, there was a kid named", character_name)\nprint(character_name, "was", character_age, "years old.")\nprint("Their favorite color was", favorite_color + ".")\nprint("They had a special pet - a", pet_type, "named", pet_name + "!")\nprint(character_name, "and", pet_name, "had many adventures together.")\n\n# Change the variables above to create your own story!',
+  
+  animation: '# Simple Animation\n\n# Let\'s create a growing circle\nfor size in range(10, 150, 20):\n    print("Drawing a circle with size", size)\n    draw_circle(size=size, color="green")\n    \n# Now let\'s switch colors\ncolors = ["red", "orange", "yellow", "green", "blue", "purple"]\n\nfor color in colors:\n    print("Drawing a triangle with color", color)\n    draw_triangle(size=100, color=color)',
 };
 
 /**
@@ -40,15 +46,15 @@ const lessonExamples = {
  */
 const PythonModule: React.FC = () => {
   // Track which lesson is currently active
-  const [currentLesson, setCurrentLesson] = useState<'basics' | 'math' | 'shapes'>('basics');
+  const [currentLesson, setCurrentLesson] = useState<'basics' | 'math' | 'shapes' | 'game' | 'story' | 'animation'>('basics');
 
   /**
    * Loads a selected code example into the editor
    * Uses custom events to communicate between components without requiring direct props
    * 
-   * @param exampleType - The type of example to load ('basics', 'math', or 'shapes')
+   * @param exampleType - The type of example to load (any of the keys in lessonExamples)
    */
-  const loadExample = (exampleType: 'basics' | 'math' | 'shapes') => {
+  const loadExample = (exampleType: keyof typeof lessonExamples) => {
     setCurrentLesson(exampleType);
     // Dispatch a custom event to update the code editor with the selected example
     const loadExampleEvent = new CustomEvent('load-python-example', { 
@@ -136,6 +142,82 @@ const PythonModule: React.FC = () => {
             <p className="mb-2">Click on a lesson above and try the examples in the code editor.</p>
             <p>Change some values and see what happens!</p>
           </div>
+        </div>
+        
+        <div className="bg-white p-6 rounded-2xl shadow-md mb-6">
+          <h2 className="text-xl font-bold mb-4 flex items-center">
+            <RiLightbulbFlashLine className="text-warning mr-2 text-2xl" />
+            Cool Python Projects
+          </h2>
+          <p className="mb-3">Try these fun Python projects - click a card to load the code:</p>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <div 
+              className={`bg-gray-100 hover:bg-primary hover:bg-opacity-10 p-3 rounded-xl cursor-pointer transition-all ${currentLesson === 'game' ? 'border-2 border-primary' : ''}`}
+              onClick={() => loadExample('game')}
+            >
+              <h3 className="font-bold text-primary">Number Guessing Game</h3>
+              <p className="text-sm">Create a simple guessing game that gives feedback!</p>
+            </div>
+            
+            <div 
+              className={`bg-gray-100 hover:bg-primary hover:bg-opacity-10 p-3 rounded-xl cursor-pointer transition-all ${currentLesson === 'story' ? 'border-2 border-primary' : ''}`}
+              onClick={() => loadExample('story')}
+            >
+              <h3 className="font-bold text-primary">Story Generator</h3>
+              <p className="text-sm">Make a story using variables that you can change!</p>
+            </div>
+            
+            <div 
+              className={`bg-gray-100 hover:bg-primary hover:bg-opacity-10 p-3 rounded-xl cursor-pointer transition-all ${currentLesson === 'animation' ? 'border-2 border-primary' : ''}`}
+              onClick={() => loadExample('animation')}
+            >
+              <h3 className="font-bold text-primary">Simple Animation</h3>
+              <p className="text-sm">Use loops to create colorful animations!</p>
+            </div>
+            
+            <div 
+              className={`bg-gray-100 hover:bg-primary hover:bg-opacity-10 p-3 rounded-xl cursor-pointer transition-all ${currentLesson === 'shapes' ? 'border-2 border-primary' : ''}`}
+              onClick={() => loadExample('shapes')}
+            >
+              <h3 className="font-bold text-primary">Shape Creator</h3>
+              <p className="text-sm">Draw colorful shapes with code!</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white p-6 rounded-2xl shadow-md mb-6">
+          <h2 className="text-xl font-bold mb-4 flex items-center">
+            <RiLightbulbFlashLine className="text-warning mr-2 text-2xl" />
+            Learn More Python
+          </h2>
+          <p className="mb-3">Want to keep learning? Check out these kid-friendly Python resources:</p>
+          
+          <ul className="space-y-3">
+            <li className="flex items-start bg-gray-50 p-3 rounded-lg">
+              <RiArrowRightCircleLine className="text-primary mr-2 mt-1 flex-shrink-0" />
+              <div>
+                <a href="https://code.org/python" target="_blank" rel="noopener noreferrer" className="font-bold text-primary hover:underline">Code.org Python</a>
+                <p className="text-sm">Fun blocks-to-text Python lessons with fun characters!</p>
+              </div>
+            </li>
+            
+            <li className="flex items-start bg-gray-50 p-3 rounded-lg">
+              <RiArrowRightCircleLine className="text-primary mr-2 mt-1 flex-shrink-0" />
+              <div>
+                <a href="https://www.codingkids.com.au/coding-kids-classes/python-for-kids/" target="_blank" rel="noopener noreferrer" className="font-bold text-primary hover:underline">Coding Kids - Python</a>
+                <p className="text-sm">Python courses specifically designed for kids!</p>
+              </div>
+            </li>
+            
+            <li className="flex items-start bg-gray-50 p-3 rounded-lg">
+              <RiArrowRightCircleLine className="text-primary mr-2 mt-1 flex-shrink-0" />
+              <div>
+                <a href="https://trinket.io/python" target="_blank" rel="noopener noreferrer" className="font-bold text-primary hover:underline">Trinket.io Python</a>
+                <p className="text-sm">Interactive Python learning with turtle graphics!</p>
+              </div>
+            </li>
+          </ul>
         </div>
         
         <div className="bg-white p-6 rounded-2xl shadow-md">

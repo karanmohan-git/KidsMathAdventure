@@ -23,6 +23,7 @@ const OutputDisplay: React.FC = () => {
   useEffect(() => {
     const handlePythonOutput = (event: CustomEvent<{ result: any, code: string }>) => {
       try {
+        console.log("Received Python output:", event.detail);
         const { result, code } = event.detail;
         
         // Check if we have print statements in the code
@@ -30,14 +31,18 @@ const OutputDisplay: React.FC = () => {
         
         // Process print statements result if it exists
         if (result && result.result && typeof result.result === 'string') {
-          setPrintOutput(result.result.split('\n').filter(Boolean));
+          // Split by newline and filter out empty lines
+          const outputLines = result.result.split('\n').filter(Boolean);
+          console.log("Output lines:", outputLines);
+          setPrintOutput(outputLines);
           
-          // If there are only print statements, don't show the shape canvas
-          if (hasPrintStatements && !code.includes('draw_')) {
-            setShowShape(false);
+          // Always show print output if it exists
+          if (outputLines.length > 0) {
             setExplanation(`Great job! You used print() to show text in the output.`);
-            return;
           }
+        } else {
+          // Make sure to clear print output if there's none
+          setPrintOutput([]);
         }
         
         // Process shape drawing if it exists
@@ -46,55 +51,77 @@ const OutputDisplay: React.FC = () => {
         let color = 'blue';
         let drewShape = false;
         
-        if (code.includes('draw_triangle')) {
-          shapeType = 'triangle';
-          drewShape = true;
-          const sizeMatch = code.match(/size=(\d+)/);
-          const colorMatch = code.match(/color="([^"]+)"/);
+        // Check if we have shape properties from Pyodide
+        if (result && result.shapeProperties) {
+          const props = result.shapeProperties;
+          console.log("Shape properties:", props);
           
-          if (sizeMatch && sizeMatch[1]) {
-            size = parseInt(sizeMatch[1], 10);
+          if (props.type) {
+            shapeType = props.type;
+            drewShape = true;
+            
+            if (props.size) {
+              size = parseInt(props.size, 10);
+            }
+            
+            if (props.color) {
+              color = props.color;
+            }
           }
-          
-          if (colorMatch && colorMatch[1]) {
-            color = colorMatch[1];
+        }
+        
+        // Fallback to regex matching if needed
+        if (!drewShape) {
+          if (code.includes('draw_triangle')) {
+            shapeType = 'triangle';
+            drewShape = true;
+            const sizeMatch = code.match(/size=(\d+)/);
+            const colorMatch = code.match(/color="([^"]+)"/);
+            
+            if (sizeMatch && sizeMatch[1]) {
+              size = parseInt(sizeMatch[1], 10);
+            }
+            
+            if (colorMatch && colorMatch[1]) {
+              color = colorMatch[1];
+            }
+            
+            setExplanation(`You created a ${color} triangle with a size of ${size}. Great job!`);
+          } else if (code.includes('draw_square')) {
+            shapeType = 'square';
+            drewShape = true;
+            const sizeMatch = code.match(/size=(\d+)/);
+            const colorMatch = code.match(/color="([^"]+)"/);
+            
+            if (sizeMatch && sizeMatch[1]) {
+              size = parseInt(sizeMatch[1], 10);
+            }
+            
+            if (colorMatch && colorMatch[1]) {
+              color = colorMatch[1];
+            }
+            
+            setExplanation(`You created a ${color} square with a size of ${size}. Great job!`);
+          } else if (code.includes('draw_circle')) {
+            shapeType = 'circle';
+            drewShape = true;
+            const sizeMatch = code.match(/size=(\d+)/);
+            const colorMatch = code.match(/color="([^"]+)"/);
+            
+            if (sizeMatch && sizeMatch[1]) {
+              size = parseInt(sizeMatch[1], 10);
+            }
+            
+            if (colorMatch && colorMatch[1]) {
+              color = colorMatch[1];
+            }
+            
+            setExplanation(`You created a ${color} circle with a size of ${size}. Great job!`);
+          } else if (!hasPrintStatements && (code.includes('+') || code.includes('-') || code.includes('*') || code.includes('/'))) {
+            setExplanation(`Great job using math in Python! You can see the results in the output.`);
+          } else if (!hasPrintStatements) {
+            setExplanation(`You ran your code successfully!`);
           }
-          
-          setExplanation(`You created a ${color} triangle with a size of ${size}. Great job using the draw_triangle function!`);
-        } else if (code.includes('draw_square')) {
-          shapeType = 'square';
-          drewShape = true;
-          const sizeMatch = code.match(/size=(\d+)/);
-          const colorMatch = code.match(/color="([^"]+)"/);
-          
-          if (sizeMatch && sizeMatch[1]) {
-            size = parseInt(sizeMatch[1], 10);
-          }
-          
-          if (colorMatch && colorMatch[1]) {
-            color = colorMatch[1];
-          }
-          
-          setExplanation(`You created a ${color} square with a size of ${size}. Great job using the draw_square function!`);
-        } else if (code.includes('draw_circle')) {
-          shapeType = 'circle';
-          drewShape = true;
-          const sizeMatch = code.match(/size=(\d+)/);
-          const colorMatch = code.match(/color="([^"]+)"/);
-          
-          if (sizeMatch && sizeMatch[1]) {
-            size = parseInt(sizeMatch[1], 10);
-          }
-          
-          if (colorMatch && colorMatch[1]) {
-            color = colorMatch[1];
-          }
-          
-          setExplanation(`You created a ${color} circle with a size of ${size}. Great job using the draw_circle function!`);
-        } else if (code.includes('+') || code.includes('-') || code.includes('*') || code.includes('/')) {
-          setExplanation(`Great job using math in Python! You can see the results in the output.`);
-        } else {
-          setExplanation(`You ran your code successfully!`);
         }
         
         // If we have a shape, show it

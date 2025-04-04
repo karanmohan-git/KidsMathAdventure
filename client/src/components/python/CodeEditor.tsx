@@ -73,7 +73,7 @@ const CodeEditor: React.FC = () => {
   const handleShowHelp = () => {
     toast({
       title: "Python Help",
-      description: "You can draw shapes using draw_triangle(), draw_square(), or draw_circle() functions. Try math operations like 2 + 2 or 5 * 3!",
+      description: "You can draw shapes using draw_triangle(), draw_square(), or draw_circle() functions. Try math operations like 2 + 2 or 5 * 3! You can also try out the example projects from the left panel.",
       duration: 5000,
     });
   };
