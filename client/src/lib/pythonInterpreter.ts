@@ -127,15 +127,50 @@ export async function runPythonCode(code: string): Promise<any> {
       pyodide = await loadPyodide();
     }
     
+    // Capture print statements into a string
+    await pyodide.runPythonAsync(`
+      import sys
+      from io import StringIO
+      
+      # Create a string buffer to capture print output
+      _stdout_buffer = StringIO()
+      _original_stdout = sys.stdout
+      sys.stdout = _stdout_buffer
+    `);
+    
     // Execute the user's Python code
-    const result = await pyodide.runPythonAsync(code);
+    let result;
+    try {
+      result = await pyodide.runPythonAsync(code);
+    } finally {
+      // Restore original stdout and get the captured output
+      await pyodide.runPythonAsync(`
+        sys.stdout = _original_stdout
+        _captured_output = _stdout_buffer.getvalue()
+      `);
+    }
+    
+    // Get the captured print output
+    const capturedOutput = await pyodide.globals.get('_captured_output');
     
     // Retrieve any shape properties for visualization
     const shapeProperties = await pyodide.runPythonAsync('get_shape_properties()');
     
-    // Return both the execution result and shape properties
+    // Combine both the execution result and print output
+    let finalResult = capturedOutput;
+    
+    // If result is not None or undefined, append it to the output
+    if (result !== undefined && result !== null) {
+      if (capturedOutput) {
+        finalResult = capturedOutput + "\n" + String(result);
+      } else {
+        finalResult = String(result);
+      }
+    }
+    
+    // Return the execution result, captured output, and shape properties
     return {
-      result,
+      result: finalResult,
       shapeProperties: shapeProperties.toJs(),
     };
   } catch (error) {

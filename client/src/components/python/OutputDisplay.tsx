@@ -29,10 +29,27 @@ const OutputDisplay: React.FC = () => {
         // Check if we have print statements in the code
         const hasPrintStatements = code.includes('print(');
         
-        // Process print statements result if it exists
-        if (result && result.result && typeof result.result === 'string') {
-          // Split by newline and filter out empty lines
-          const outputLines = result.result.split('\n').filter(Boolean);
+        // Process the result - this can be a direct result from a Python expression or print statements
+        let outputText: string;
+        
+        if (result && result.result !== undefined) {
+          if (typeof result.result === 'string') {
+            // If it's already a string, use it directly
+            outputText = result.result;
+          } else if (typeof result.result === 'object' && result.result !== null) {
+            // If it's an object, stringify it
+            try {
+              outputText = JSON.stringify(result.result);
+            } catch (e) {
+              outputText = String(result.result);
+            }
+          } else {
+            // For any other type, convert to string
+            outputText = String(result.result);
+          }
+            
+          // Split by newline and filter out empty lines  
+          const outputLines = outputText.split('\n').filter(line => line.trim() !== '');
           console.log("Output lines:", outputLines);
           setPrintOutput(outputLines);
           
