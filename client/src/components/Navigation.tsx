@@ -1,7 +1,7 @@
 import React from 'react';
-import { RiCodeBoxLine, RiFunctionLine, RiShapeLine } from 'react-icons/ri';
+import { RiCodeBoxLine, RiFunctionLine, RiShapeLine, RiQuestionLine } from 'react-icons/ri';
 
-type Tab = 'python' | 'algebra' | 'geometry';
+type Tab = 'python' | 'algebra' | 'geometry' | 'quiz';
 
 interface NavigationProps {
   activeTab: Tab;
@@ -44,6 +44,17 @@ const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab }) => {
           >
             <RiShapeLine className="text-3xl mb-1" />
             Geometry
+          </button>
+          
+          <button 
+            className={`flex flex-col items-center py-4 px-8 border-b-4 font-bold text-xl
+              ${activeTab === 'quiz' 
+                ? 'border-primary text-primary' 
+                : 'border-transparent text-gray-500 hover:text-primary'}`}
+            onClick={() => setActiveTab('quiz')}
+          >
+            <RiQuestionLine className="text-3xl mb-1" />
+            Quizzes
           </button>
         </div>
       </div>
